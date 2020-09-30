@@ -54,19 +54,58 @@ const DirectorInfoBIO = styled.div`
 }
 `
 class DirectorsTable extends React.Component {
-  state = {
-    movies: []
-  };
-  // handleShowMovies = (movies) => {
-  //   this.setState({movies: movies})
-  // }
+  constructor(props) {
+    super(props);
+    this.state = {
+      movies: [],
+      logIn: false,
+      user: '',
+      password: '',
+      users: [
+        {id: '1', user: 'admin', password: 'admin'},
+        {id: '2', user: 'user', password: 'user'}
+      ]
+    };
+
+    this.handleChangeUser = this.handleChangeUser.bind(this);
+    this.handleChangePassword = this.handleChangePassword.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+  
+
+  handleChangeUser(event) {
+    this.setState({user: event.target.value});
+  }
+  handleChangePassword(event) {
+    this.setState({password: event.target.value});
+  }
+
+  handleSubmit(event) {
+    alert('Отправленное имя: ' + this.state.value.user);
+    event.preventDefault();
+  }
+
   render() {
     const { data } = this.props;
-    const { directors = [] } = data
-
+    const { directors = [] } = data;
+    const { user, password, logIn} = this.state;
     return (
       <Wrapper>
-        {directors.map(director => {
+        {
+        !logIn?
+        <form onSubmit={this.handleSubmit}>
+          <label>
+            user:
+            <input type="text" value={user}  onChange={this.handleChangeUser} />
+          </label>
+          <label>
+            password:
+            <input type="password" value={password} onChange={this.handleChangePassword} />
+          </label>
+          <input type="submit" value="Отправить" />
+        </form>
+        :
+        directors.map(director => {
           return (
             <Director key={director.id}>
               <DirectorPhoto><Link to={`/director/${director.id}`}><img src={director.photo} alt=""/></Link></DirectorPhoto>
@@ -85,3 +124,4 @@ class DirectorsTable extends React.Component {
 };
 
 export default withHocs(DirectorsTable);
+
