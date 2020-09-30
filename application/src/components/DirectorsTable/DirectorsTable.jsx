@@ -70,8 +70,8 @@ class DirectorsTable extends React.Component {
     this.handleChangeUser = this.handleChangeUser.bind(this);
     this.handleChangePassword = this.handleChangePassword.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleExit = this.handleExit.bind(this);
   }
-  
 
   handleChangeUser(event) {
     this.setState({user: event.target.value});
@@ -79,12 +79,27 @@ class DirectorsTable extends React.Component {
   handleChangePassword(event) {
     this.setState({password: event.target.value});
   }
-
+  handleExit(event) {
+      this.setState({logIn: false})
+      localStorage.setItem('document',JSON.stringify(false));
+  }
   handleSubmit(event) {
-    alert('Отправленное имя: ' + this.state.value.user);
+    const {users, user, password} = this.state;
+    const findUser = users.find(polz => polz.user === user && polz.password === password );
+    if (findUser) {
+      this.setState({logIn: true})
+      localStorage.setItem('document',JSON.stringify(true));
+    } else{
+      alert('Не верный логин или пароль')
+    }
     event.preventDefault();
   }
-
+  componentDidMount() {
+    this.documentData = JSON.parse(localStorage.getItem('document'));
+    if (localStorage.getItem('document')) {
+      this.setState({logIn: this.documentData})
+    }
+}
   render() {
     const { data } = this.props;
     const { directors = [] } = data;
@@ -95,29 +110,33 @@ class DirectorsTable extends React.Component {
         !logIn?
         <form onSubmit={this.handleSubmit}>
           <label>
-            user:
-            <input type="text" value={user}  onChange={this.handleChangeUser} />
+            user:<br/>
+            <input type="text" value={user}  onChange={this.handleChangeUser} /><br/>
           </label>
           <label>
-            password:
-            <input type="password" value={password} onChange={this.handleChangePassword} />
+            password:<br/>
+            <input type="password" value={password} onChange={this.handleChangePassword} /><br/>
           </label>
-          <input type="submit" value="Отправить" />
+          <input type="submit" value="Войти" />
         </form>
         :
-        directors.map(director => {
-          return (
-            <Director key={director.id}>
-              <DirectorPhoto><Link to={`/director/${director.id}`}><img src={director.photo} alt=""/></Link></DirectorPhoto>
-              <DirectorInfo>
-                <DirectorInfoName>{director.name}</DirectorInfoName>
-                <DirectorInfoAge>{director.age} лет</DirectorInfoAge>
-                <DirectorInfoMovies>Фильмов снято: {director.movies.length}<Link to={`/director/${director.id}`}>(подробнее)</Link></DirectorInfoMovies>
-                <DirectorInfoBIO>{director.bio} </DirectorInfoBIO>
-              </DirectorInfo>
-            </Director>
-          );
-        })}
+        <>
+          <button onClick={this.handleExit}>Выход</button>
+          {directors.map(director => {
+            return (
+              <Director key={director.id}>
+                <DirectorPhoto><Link to={`/director/${director.id}`}><img src={director.photo} alt=""/></Link></DirectorPhoto>
+                <DirectorInfo>
+                  <DirectorInfoName>{director.name}</DirectorInfoName>
+                  <DirectorInfoAge>{director.age} лет</DirectorInfoAge>
+                  <DirectorInfoMovies>Фильмов снято: {director.movies.length}<Link to={`/director/${director.id}`}>(подробнее)</Link></DirectorInfoMovies>
+                  <DirectorInfoBIO>{director.bio} </DirectorInfoBIO>
+                </DirectorInfo>
+              </Director>
+            );
+          })}
+          </>
+        }
       </Wrapper>
     );
   }
